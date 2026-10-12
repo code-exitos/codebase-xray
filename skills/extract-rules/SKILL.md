@@ -55,7 +55,7 @@ count and estimate and launch.
 
 ```
 Workflow({
-  scriptPath: "${CLAUDE_PLUGIN_ROOT}/workflows/extract-rules.js",
+  name: "codebase-xray:extract-rules-mine",   // or scriptPath: "${CLAUDE_PLUGIN_ROOT}/workflows/extract-rules.js"
   args: {
     system: "<plain system name, letters/digits/-/_>",
     sourceDir: ".",

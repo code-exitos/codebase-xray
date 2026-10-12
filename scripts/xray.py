@@ -374,24 +374,24 @@ def shards(graph, max_files=25, statuses=None, reachability=None):
         if len(files) <= max_files:
             groups = [(name, files)]
         else:
+            # Chunk within each folder, then merge neighbouring small folders, so a shard's
+            # label always names every folder in it.
             by_dir = {}
             for f in files:
                 by_dir.setdefault(os.path.dirname(f), []).append(f)
-            groups, current, label = [], [], None
+            pieces = []
             for d in sorted(by_dir):
-                for f in by_dir[d]:
-                    if len(current) >= max_files:
-                        groups.append((label, current)); current = []
-                    if not current:
-                        label = f"{name} / {os.path.basename(d) or d or '(root)'}"
-                    current.append(f)
-            if current:
-                groups.append((label, current))
-            seen = {}
-            for i, (label, fs) in enumerate(groups):
-                seen[label] = seen.get(label, 0) + 1
-                if seen[label] > 1:
-                    groups[i] = (f'{label} {seen[label]}', fs)
+                fs, label = by_dir[d], os.path.basename(d) or d or '(root)'
+                chunks = [fs[i:i + max_files] for i in range(0, len(fs), max_files)]
+                for i, chunk in enumerate(chunks):
+                    pieces.append(([label + (f' {i + 1}' if len(chunks) > 1 else '')], chunk))
+            groups = []
+            for labels, fs in pieces:
+                if groups and len(groups[-1][1]) + len(fs) <= max_files:
+                    groups[-1] = (groups[-1][0] + labels, groups[-1][1] + fs)
+                else:
+                    groups.append((labels, fs))
+            groups = [(f"{name} / {' + '.join(labels)}", fs) for labels, fs in groups]
         for label, fs in groups:
             out.append({'name': label, 'domain': name, 'files': fs, 'loc': sum(loc[f] for f in fs)})
     return out

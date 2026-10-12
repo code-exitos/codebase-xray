@@ -1,9 +1,9 @@
 // Copyright Anthropic, PBC. Licensed under the Apache License, Version 2.0 (LICENSES/Apache-2.0-code-modernization.txt).
 // Source: anthropics/claude-plugins-official, plugins/code-modernization/workflows/extract-rules.js
-// MODIFIED by CODE Éxitos for codebase-xray: workflow name, a `sourceDir` arg replacing the hard-coded
+// MODIFIED by CODE Éxitos for codebase-xray: workflow name (extract-rules-mine, so it does not shadow the extract-rules skill), a `sourceDir` arg replacing the hard-coded
 // legacy/<system> path, agent types renamed to codebase-xray:*, and messages that named code-modernization commands.
 export const meta = {
-  name: 'extract-rules',
+  name: 'extract-rules-mine',
   description:
     'Business-rule mining — one extractor per module in ordered batches when given a module list (else loop-until-dry lens extraction), per-rule citation verification, and a P0 confirmation panel',
   whenToUse:

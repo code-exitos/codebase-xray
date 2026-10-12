@@ -149,6 +149,9 @@ class ShardsTest(unittest.TestCase):
         self.assertTrue(all(len(m['files']) <= 25 for m in out))
         self.assertEqual(sum(len(m['files']) for m in out), 60)
         self.assertEqual(len({m['name'] for m in out}), len(out))
+        for m in out:  # a shard's label names every folder its files come from
+            for f in m['files']:
+                self.assertIn(os.path.basename(os.path.dirname(f)), m['name'])
 
     def test_status_filter(self):
         rch = {'nodes': {'l0': {'status': 'active'}, 'l1': {'status': 'dormant'}}}
