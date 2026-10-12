@@ -1,6 +1,14 @@
 # codebase-xray
 
-A Claude Code plugin with the `codebase-xray` skill, extracted from
+A Claude Code plugin for untangling brownfield codebases. Three skills, meant to run in order:
+
+| Skill | Story | What it produces |
+|---|---|---|
+| `codebase-xray` | Map, Prune, Capture | Dependency graph, reachability, three diagrams, verified safe-to-drop list, questions for the original authors |
+| `extract-rules` | Untangle | Cited Given/When/Then business-rule cards from live code, refereed, P0s panel-confirmed |
+| `security-sweep` | Secure | Ranked OWASP findings, Critical/High panel-checked, then fixes the human picks |
+
+The `codebase-xray` skill was extracted from
 [code-exitos/athanor-plugin#9](https://github.com/code-exitos/athanor-plugin/pull/9)
 (commit `df9bb60`, 2026-08-06), where it shipped as `run-codebase-xray`.
 
@@ -24,8 +32,19 @@ How "safe to drop" is earned:
   plugin.json
   marketplace.json
 skills/codebase-xray/SKILL.md
-scripts/xray.py                                        reach | sql | cite | brief (stdlib only)
+skills/extract-rules/SKILL.md
+skills/security-sweep/SKILL.md
+agents/business-rules-extractor.md                     from code-modernization (modified)
+agents/legacy-analyst.md                               from code-modernization (modified)
+agents/security-reviewer.md                            adapted from Athanor for whole-code sweeps
+workflows/extract-rules.js                             from code-modernization (modified)
+scripts/xray.py                                        reach | sql | cite | brief | shards | security (stdlib only)
+scripts/render_rules.py                                from code-modernization (modified)
 resources/templates/brownfield/reachability-brief.md
+resources/standards/security-checklist.md              from Athanor
+resources/standards/severity-classification.md         from Athanor
+LICENSES/Apache-2.0-code-modernization.txt
+NOTICE
 tests/test_xray.py
 ```
 
@@ -47,4 +66,12 @@ python3 -m unittest discover -s tests
 The graph-first approach (stack tooling before scripts, entry points from deployment config,
 dispatch edges, the dynamic-call suppression rule) and the `graph.json` shape are adapted from
 Anthropic's [code-modernization](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-modernization)
-plugin (Apache 2.0). No code from it is included.
+plugin (Apache 2.0).
+
+The `extract-rules` workflow, its two agents and `render_rules.py` are copied from that plugin
+and modified; each modified file says so at the top, and `NOTICE` lists them. They stay under
+the Apache License 2.0 (`LICENSES/Apache-2.0-code-modernization.txt`). This plugin is not
+affiliated with or endorsed by Anthropic.
+
+The `security-reviewer` agent and the security checklist and severity guide come from
+[code-exitos/athanor-plugin](https://github.com/code-exitos/athanor-plugin).

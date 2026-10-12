@@ -1,0 +1,13 @@
+codebase-xray
+Copyright CODE Éxitos
+
+This product includes software from the code-modernization plugin in
+https://github.com/anthropics/claude-plugins-official (plugins/code-modernization),
+Copyright Anthropic, PBC, licensed under the Apache License, Version 2.0
+(see LICENSES/Apache-2.0-code-modernization.txt).
+
+Files copied and modified by CODE Éxitos:
+  workflows/extract-rules.js          from workflows/extract-rules.js
+  scripts/render_rules.py             from scripts/render_rules.py
+  agents/business-rules-extractor.md  from agents/business-rules-extractor.md
+  agents/legacy-analyst.md            from agents/legacy-analyst.md

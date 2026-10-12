@@ -130,5 +130,44 @@ class BriefTest(unittest.TestCase):
             self.assertIn('graph built with madge', md)
 
 
+class ShardsTest(unittest.TestCase):
+    def tree(self, n):
+        leaves = [{'id': f'l{i}', 'kind': 'module', 'file': f"A/{'x' if i < n // 2 else 'y'}/f{i}.vb", 'loc': 10}
+                  for i in range(n)]
+        return {'root': {'id': 'sys', 'kind': 'system', 'children': [
+            {'id': 'dom:a', 'name': 'A', 'kind': 'domain', 'children': leaves},
+            {'id': 'dom:data', 'name': 'Data stores', 'kind': 'domain',
+             'children': [{'id': 'ds:t', 'name': 't', 'kind': 'datastore'}]}]}}
+
+    def test_one_shard_per_domain_skipping_datastores(self):
+        out = xray.shards(self.tree(4))
+        self.assertEqual([m['name'] for m in out], ['A'])
+        self.assertEqual(out[0]['loc'], 40)
+
+    def test_large_domain_splits_by_folder_with_unique_names(self):
+        out = xray.shards(self.tree(60), max_files=25)
+        self.assertTrue(all(len(m['files']) <= 25 for m in out))
+        self.assertEqual(sum(len(m['files']) for m in out), 60)
+        self.assertEqual(len({m['name'] for m in out}), len(out))
+
+    def test_status_filter(self):
+        rch = {'nodes': {'l0': {'status': 'active'}, 'l1': {'status': 'dormant'}}}
+        out = xray.shards(self.tree(2), statuses={'active'}, reachability=rch)
+        self.assertEqual(out[0]['files'], ['A/x/f0.vb'])
+
+
+class SecurityReportTest(unittest.TestCase):
+    def test_orders_by_severity_and_numbers(self):
+        md = xray.security_report({'confirmed': [
+            {'severity': 'Medium', 'title': 'm', 'file': 'a.vb', 'line': 1},
+            {'severity': 'Critical', 'title': 'sqli | x', 'file': 'b.vb', 'line': 2}],
+            'refuted': [{'severity': 'High', 'title': 'r', 'file': 'c.vb', 'line': 3, 'panel': 'input is constant'}]},
+            '2026-10-12')
+        self.assertLess(md.index('SEC-001 [Critical]'), md.index('SEC-002 [Medium]'))
+        self.assertIn('sqli / x', md)
+        self.assertIn('## Refuted by the panel', md)
+        self.assertIn('| Critical | 1 |', md)
+
+
 if __name__ == '__main__':
     unittest.main()

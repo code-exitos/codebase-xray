@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "codebase-xray",
   "displayName": "Codebase X-Ray",
-  "version": "1.0.0",
-  "description": "Reachability deep-dive for brownfield codebases: class diagram, stakeholder-facing I/O map and information-lifecycle diagram, each annotated active/dormant/orphaned, plus a reachability brief.",
+  "version": "1.1.0",
+  "description": "Untangle brownfield codebases: graph-based reachability with three stakeholder diagrams and a verified safe-to-drop list (codebase-xray), cited business-rule cards (extract-rules), and a panel-checked OWASP security sweep (security-sweep).",
   "author": {
     "name": "CODE Éxitos",
     "url": "https://codeexitos.com"
@@ -11,5 +11,14 @@
   "homepage": "https://github.com/code-exitos/codebase-xray#readme",
   "repository": "https://github.com/code-exitos/codebase-xray",
   "license": "UNLICENSED",
-  "keywords": ["brownfield", "reachability", "dead-code", "diagrams", "code-exitos"]
+  "keywords": [
+    "brownfield",
+    "business-rules",
+    "code-exitos",
+    "dead-code",
+    "diagrams",
+    "modernization",
+    "reachability",
+    "security"
+  ]
 }
