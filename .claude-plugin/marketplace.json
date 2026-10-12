@@ -1,0 +1,14 @@
+{
+  "name": "codebase-xray",
+  "description": "Marketplace for the Codebase X-Ray plugin.",
+  "owner": {
+    "name": "CODE Éxitos"
+  },
+  "plugins": [
+    {
+      "name": "codebase-xray",
+      "source": "./",
+      "description": "Reachability deep-dive for brownfield codebases: diagrams annotated active/dormant/orphaned, plus a reachability brief."
+    }
+  ]
+}

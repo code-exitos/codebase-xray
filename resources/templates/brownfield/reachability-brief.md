@@ -4,7 +4,7 @@ Approved By:
 Approved Date:
 Last Updated:
 Supersedes: <link to previous version, if any>
-Derived From: <run-codebase-xray output — module list and scan date>
+Derived From: <codebase-xray output — module list and scan date>
 ---
 
 # Reachability Brief
