@@ -242,7 +242,14 @@ not a JSON-encoded string:
 }
 ```
 
-Build `nodes` from `reachability.json`'s `nodes` map. Use this as the `script` argument:
+Build `nodes` from `reachability.json`'s `nodes` map. Use this as the `script` argument.
+
+On a large repo `nodes` and `sqlObjects` can run to hundreds of kilobytes. Rather than paste
+them into the call, write the script to a file in your scratchpad with the args embedded
+(replace the `= args` destructuring line with the JSON) and invoke `Workflow({ scriptPath })`.
+To keep `nodes` small, collapse a folder whose files are all active into one node whose `file`
+is the folder path ending in `/` (the citation matcher takes the longest prefix), and keep
+every non-active file as its own node: those are the drop candidates.
 
 ```javascript
 export const meta = {
@@ -526,7 +533,8 @@ RULES:
   labelled "(proc)" or "(trigger)"; outputs [/Label/]
 - Subgraphs by business domain
 - Active paths ==>, dormant paths -. .->
-- A SQL object whose called_from_code is not "true": add on the same line
+- A SQL object whose called_from_code is not "true": put this comment on its own line just above the node
+  (Mermaid rejects a %% comment at the end of a node line):
     %% NOT CALLED FROM CODE — verify with DBA
 - Too many flows: keep the active ones and add %% N dormant flows omitted for clarity
 
