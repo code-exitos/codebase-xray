@@ -21,9 +21,11 @@ import sys
 from collections import deque
 
 SKIP_DIRS = {'.git', '.hg', '.svn', 'node_modules', 'bin', 'obj', 'dist', 'build',
-             'target', 'vendor', '.venv', 'venv', '__pycache__', 'context', '.idea', '.vs'}
+             'target', 'vendor', '.venv', 'venv', '__pycache__', 'context', '.idea', '.vs',
+             'packages', 'aspnet_client', 'bower_components', 'jspm_packages'}
 MAX_FILE_BYTES = 2_000_000
 MAX_REFS = 5
+WORD = re.compile(r'[a-z_][a-z0-9_]*')
 
 
 def read_json(path):
@@ -115,6 +117,10 @@ def reach(graph):
 SQL_DEF = re.compile(r'\bCREATE\s+(?:OR\s+(?:ALTER|REPLACE)\s+)?(PROCEDURE|PROC|TRIGGER|VIEW|FUNCTION)\s+'
                      r'([\[\]"`\w.]+)', re.IGNORECASE)
 DYNAMIC_SQL = re.compile(r'\bsp_executesql\b|\bEXEC(?:UTE)?\s*\(|EXEC(?:UTE)?\s+@', re.IGNORECASE)
+# A command or procedure name built from a literal prefix plus a variable: "fetch" & LookupName.
+BUILT_NAME = re.compile(r'(?:CommandText\s*=|SqlCommand\s*\(|prepareCall\s*\(|callproc\s*\()\s*"(\w+)"\s*(?:&|\+)', re.IGNORECASE)
+# Client-side and non-server files can't run SQL; a regex .exec( in jQuery is not dynamic SQL.
+NOT_SERVER_CODE = ('.js', '.css', '.html', '.htm', '.map', '.json', '.md', '.txt', '.xml', '.svg')
 
 
 def walk(root):
@@ -147,32 +153,48 @@ def sql_objects(root):
                 defs.append({'name': full.split('.')[-1], 'qualified': full,
                              'type': 'procedure' if kind == 'proc' else kind, 'file': rel, 'line': i})
 
-    dynamic_sites = []
+    dynamic_sites, built = [], []
     for rel, lines in files:
+        low = rel.lower()
+        if low.endswith(NOT_SERVER_CODE):
+            continue
         for i, line in enumerate(lines, 1):
             if DYNAMIC_SQL.search(line) and len(dynamic_sites) < 20:
                 dynamic_sites.append(f'{rel}:{i}')
+            if not low.endswith('.sql'):
+                for m in BUILT_NAME.finditer(line):
+                    built.append((m.group(1).lower(), f'{rel}:{i}'))
 
+    # One pass builds a word index (only for defined names), instead of one scan per object.
+    wanted = {d['name'].lower() for d in defs}
+    index = {}
+    for rel, lines in files:
+        is_sql = rel.lower().endswith('.sql')
+        for i, line in enumerate(lines, 1):
+            for w in set(WORD.findall(line.lower())) & wanted:
+                index.setdefault(w, []).append((rel, i, is_sql))
     for d in defs:
-        word = re.compile(r'\b' + re.escape(d['name']) + r'\b', re.IGNORECASE)
         code_refs, sql_refs = [], []
-        for rel, lines in files:
-            is_sql = rel.lower().endswith('.sql')
-            for i, line in enumerate(lines, 1):
-                if (rel, i) == (d['file'], d['line']) or not word.search(line):
-                    continue
-                (sql_refs if is_sql else code_refs).append(f'{rel}:{i}')
+        for rel, i, is_sql in index.get(d['name'].lower(), []):
+            if (rel, i) == (d['file'], d['line']):
+                continue
+            (sql_refs if is_sql else code_refs).append(f'{rel}:{i}')
+        prefix_site = next((site for prefix, site in built
+                            if d['name'].lower().startswith(prefix) and len(d['name']) > len(prefix)), None)
         if d['type'] == 'trigger':
             d['called_from_code'] = 'n/a (trigger fires on table events)'
         elif code_refs:
             d['called_from_code'] = 'true'
+        elif prefix_site:
+            d['called_from_code'] = f'unknown (name matches a string-built call at {prefix_site})'
         elif dynamic_sites:
             d['called_from_code'] = 'unknown (no static reference; dynamic SQL present)'
         else:
             d['called_from_code'] = 'false'
         d['code_refs'] = code_refs[:MAX_REFS]
         d['sql_refs'] = sql_refs[:MAX_REFS]
-    return {'objects': defs, 'dynamicSqlSites': dynamic_sites}
+    return {'objects': defs, 'dynamicSqlSites': dynamic_sites,
+            'builtNameSites': sorted({site for _, site in built})}
 
 
 # --- cite --------------------------------------------------------------------

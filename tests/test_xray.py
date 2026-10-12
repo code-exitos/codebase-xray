@@ -169,5 +169,18 @@ class SecurityReportTest(unittest.TestCase):
         self.assertIn('| Critical | 1 |', md)
 
 
+class SqlDynamicTest(unittest.TestCase):
+    def test_js_exec_is_not_dynamic_sql_and_built_names_are_bounded(self):
+        with tempfile.TemporaryDirectory() as root:
+            write(root, 'db/s.sql', 'CREATE PROCEDURE fetchCustomer AS SELECT 1\nGO\nCREATE PROCEDURE rptOld AS SELECT 1\n')
+            write(root, 'web/js/jquery.js', 'var m = re.exec(s);\n')
+            write(root, 'app/Db.vb', 'cmd.CommandText = "fetch" & LookupName\n')
+            data = xray.sql_objects(root)
+            status = {o['name']: o['called_from_code'] for o in data['objects']}
+            self.assertEqual(data['dynamicSqlSites'], [])
+            self.assertTrue(status['fetchCustomer'].startswith('unknown'))
+            self.assertEqual(status['rptOld'], 'false')
+
+
 if __name__ == '__main__':
     unittest.main()
