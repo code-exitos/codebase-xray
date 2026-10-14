@@ -10,7 +10,7 @@
   },
   "homepage": "https://github.com/code-exitos/codebase-xray#readme",
   "repository": "https://github.com/code-exitos/codebase-xray",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "keywords": [
     "brownfield",
     "business-rules",

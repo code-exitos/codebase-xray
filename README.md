@@ -43,6 +43,7 @@ scripts/render_rules.py                                from code-modernization (
 resources/templates/brownfield/reachability-brief.md
 resources/standards/security-checklist.md              from Athanor
 resources/standards/severity-classification.md         from Athanor
+LICENSE
 LICENSES/Apache-2.0-code-modernization.txt
 NOTICE
 tests/test_xray.py
@@ -75,3 +76,8 @@ affiliated with or endorsed by Anthropic.
 
 The `security-reviewer` agent and the security checklist and severity guide come from
 [code-exitos/athanor-plugin](https://github.com/code-exitos/athanor-plugin).
+
+## License
+
+Copyright CODE Éxitos. Licensed under the [Apache License 2.0](LICENSE). See `NOTICE` for the
+files that come from Anthropic's code-modernization plugin, which stay under their own Apache 2.0 terms.

@@ -1,5 +1,6 @@
 codebase-xray
 Copyright CODE Éxitos
+Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 This product includes software from the code-modernization plugin in
 https://github.com/anthropics/claude-plugins-official (plugins/code-modernization),
