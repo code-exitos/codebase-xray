@@ -46,6 +46,9 @@ resources/standards/severity-classification.md         from Athanor
 LICENSE
 LICENSES/Apache-2.0-code-modernization.txt
 NOTICE
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+SECURITY.md
 tests/test_xray.py
 ```
 
@@ -61,6 +64,12 @@ tests/test_xray.py
 ```
 python3 -m unittest discover -s tests
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Everyone taking part follows the
+[Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in
+[SECURITY.md](SECURITY.md).
 
 ## Credits
 
