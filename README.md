@@ -28,6 +28,8 @@ How "safe to drop" is earned:
 ## Layout
 
 ```
+.github/ISSUE_TEMPLATE/                                bug report, feature request, security link
+.github/pull_request_template.md
 .claude-plugin/
   plugin.json
   marketplace.json
